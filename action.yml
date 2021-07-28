@@ -1,0 +1,13 @@
+name: 'Go-coverage'
+description: 'Shows golang code coverage in PR'
+inputs:
+  token:
+    description: 'Github Token'
+    required: true
+  min_coverage:
+    required: false
+    description: 'Target minimum coverage'
+    default: '90'
+runs:
+  using: 'node12'
+  main: 'src/index.js'
