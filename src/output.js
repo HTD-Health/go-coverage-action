@@ -1,6 +1,8 @@
+const core = require('@actions/core');
+
 const generateSummary = (coverage) => {
     const coverageValue = coverage.totalTested / coverage.totalStatements;
-    const percentage = Math.round((coverageValue + Number.EPSILON) * 100) / 100;
+    const percentage = Math.round((coverageValue * 100 + Number.EPSILON) * 100) / 100;
 
     const targetPercentage = +core.getInput('min_coverage');
     if (percentage < targetPercentage) {
@@ -19,7 +21,7 @@ const generateSummary = (coverage) => {
 const generateAnnotations = (coverage) => {
     return coverage.missingCoverage.map(entry => {
         const coverageValue = entry.statements / coverage.totalStatements;
-        const percentage = Math.round((coverageValue + Number.EPSILON) * 100) / 100;
+        const percentage = Math.round((coverageValue * 100 + Number.EPSILON) * 100) / 100;
 
         const repositoryName = process.env.GITHUB_REPOSITORY;
         const modulePrefix = `github.com/${repositoryName}/`;

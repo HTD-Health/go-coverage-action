@@ -1,9 +1,24 @@
 const readline = require('readline');
+const stream = require('stream');
 const exec = require('@actions/exec');
 const fs = require('fs').promises;
 
 const parseProfileLine = (line) => {
-    let [ fileName, startLine, startColumn, endLine, endColumn, statements, count ] = line.split(/[\s:,.]+/);
+    const matchResult = line.match(/(?<fileName>.+):(?<startLine>[0-9]+).(?<startColumn>[0-9]+),(?<endLine>[0-9]+).(?<endColumn>[0-9]+) (?<statements>[0-9]+) (?<count>[0-9]+)/);
+    if (!matchResult) {
+        return null;
+    }
+
+    let {
+        fileName,
+        startLine,
+        startColumn,
+        endLine,
+        endColumn,
+        statements,
+        count
+    } = matchResult.groups;
+
     startLine = +startLine;
     startColumn = +startColumn;
     endLine = +endLine;
@@ -17,24 +32,30 @@ const parseProfileLine = (line) => {
 }
 
 const parseProfile = async (data) => {
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(data);
+
     const rl = readline.createInterface({
-        input: data,
+        input: bufferStream,
         crlfDelay: Infinity
     });
-
-    await rl.next(); // skip mode line
 
     const missingCoverage = [];
     let totalStatements = 0;
     let totalTested = 0;
 
     for await (const line of rl) {
-        const { fileName, startLine, startColumn, endLine, endColumn, statements, count } = parseProfileLine(line);
+        const parseResult = parseProfileLine(line);
+        if (!parseResult) {
+            continue;
+        }
+
+        const {fileName, startLine, startColumn, endLine, endColumn, statements, count} = parseResult;
 
         // For calculating coverage
-        totalStatements += +statements;
-        if (+count === 1) {
-            totalTested += +statements;
+        totalStatements += statements;
+        if (count === 1) {
+            totalTested += statements;
             continue;
         }
 
