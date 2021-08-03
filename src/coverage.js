@@ -78,8 +78,8 @@ const parseProfile = async (data) => {
 }
 
 const generateCoverageDetails = async () => {
-    await exec.exec('go', ['test', '-coverprofile', '/tmp/cover.out', './...']);
-    const data = await fs.readFile('/tmp/cover.out');
+    await exec.exec('go', ['test', '-coverprofile', 'cover.out', './...']);
+    const data = await fs.readFile('cover.out');
     return parseProfile(data);
 }
 
