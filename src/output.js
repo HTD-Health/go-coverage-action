@@ -2,6 +2,13 @@ const core = require('@actions/core');
 
 const generateSummary = (coverage) => {
     const coverageValue = coverage.totalTested / coverage.totalStatements;
+    if (coverage.totalStatements === 0) {
+        return {
+            success: false,
+            message: `Oh no! There are no tests`
+        }
+    }
+
     const percentage = Math.round((coverageValue * 100 + Number.EPSILON) * 100) / 100;
 
     const targetPercentage = +core.getInput('min_coverage');
