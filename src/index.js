@@ -11,7 +11,7 @@ const run = async () => {
 
     const token = core.getInput('token');
     const repositoryName = process.env.GITHUB_REPOSITORY;
-    const commitSHA = process.env.GITHUB_SHA;
+    const commitSHA = process.env.GITHUB_SHA || github.context.sha;
 
     const firstBatchOfAnnotations = annotations.splice(0, 50);
 
